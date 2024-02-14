@@ -66,13 +66,30 @@ class BasicAuth(Auth):
 		elif not isinstance(user_email, str) or not isinstance(user_pwd, str):
 			return None
 		else:
-			found_user = None
-			users = [user.to_json() for user in User.all()]
-			for user in users:
-				if user['email'] == user_email:
-					user = User.search({"email": user_email})[0]
-					if user.is_valid_password(user_pwd):
-						return user
-				else:
-					return None
+			try:
+				users = [user.to_json() for user in User.all()]
+				for user in users:
+					if user['email'] == user_email:
+						user = User.search({"email": user_email})
+						if len(user) > 0:
+							if user.is_valid_password(user_pwd):
+								return user
+			except Exception:
+				return None
 			return None
+	
+	def current_user(self, request=None) -> TypeVar('User'):
+		"""overloads Auth and retrieves the User instance for a request.
+        """
+		if request is None:
+			return None
+		else:
+			auth = Auth()
+			request_auth_header = auth.authorization_header(request)
+			b64_auth_tokens = self.extract_base64_authorization_header(request_auth_header)
+			decoded_base64_authorization_header = self.decode_base64_authorization_header(b64_auth_tokens)
+			user_credentials = self.extract_user_credentials(decoded_base64_authorization_header)
+			found_user = self.user_object_from_credentials(user_credentials[0], user_credentials[1])
+
+			return found_user
+	
