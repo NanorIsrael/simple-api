@@ -41,3 +41,16 @@ def login_user() -> str:
 	except Exception as e:
 		print(e)
 		return make_response(jsonify({"error": "an error occured"}), 500)
+
+
+@app_views.route('/auth_session/logout', methods=['DELETE'], strict_slashes=False)
+def logout_user() -> str:
+	""" DELETE /api/v1/auth_session/logout
+	Return:
+	  - an empty object if successful
+	"""
+	from api.v1.app import auth
+
+	if not auth.destroy_session(request):
+		abort(404)
+	return jsonify({}), 200
