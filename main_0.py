@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
-""" Check response
+""" Main 6
 """
+import base64
+from api.v1.auth.basic_auth import BasicAuth
+from models.user import User
 
-if __name__ == "__main__":
-    from api.v1.auth.basic_auth import BasicAuth
+""" Create a user test """
+user_email = "bob@hbtn.io"
+user_clear_pwd = "H0lbertonSchool98!"
+user = User()
+user.email = user_email
+user.password = user_clear_pwd
+print("New user: {} / {}".format(user.id, user.display_name()))
+user.save()
 
-    ba = BasicAuth()
-    res = ba.user_object_from_credentials("u1@gmail.com", "pwd")
-    if res is not None:
-        print("user_object_from_credentials must return None if 'user_email' is not linked to any user")
-        exit(1)
-    
-    print("OK", end="")
+basic_clear = "{}:{}".format(user_email, user_clear_pwd)
+print("Basic Base64: {}".format(base64.b64encode(basic_clear.encode('utf-8')).decode("utf-8")))
